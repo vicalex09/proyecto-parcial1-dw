@@ -1,3 +1,7 @@
+// === VARIABLES GLOBALES ===
+let vidasCount = 3; // Contador de vidas
+const vidasDisplay = document.getElementById("vidas");
+const botonDaño = document.getElementById("botonDaño");
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -42,6 +46,27 @@ function update() {
         player.y += PLAYER_SPEED;
     }
 }
+// === SISTEMA DE VIDAS ===
+function setupVidas() {
+    botonDaño.addEventListener("click", () => {
+        if (vidasCount > 0) {
+            vidasCount--;
+            vidasDisplay.innerText = vidasCount;
+
+            if (vidasCount === 0) {
+                alert("Game Over - Has perdido todas tus vidas");
+                resetGame();
+            }
+        }
+    });
+}
+
+function resetGame() {
+    vidasCount = 3;
+    vidasDisplay.innerText = vidasCount;
+    player.x = 50;
+    player.y = 50;
+}   
 
 // Dibujar en canvas
 function draw() {
@@ -54,12 +79,13 @@ function draw() {
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-// Loop del juego
+// === LOOP DEL JUEGO ===
 function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
 }
 
-// Iniciar juego
+// === INICIALIZACIÓN ===
+setupVidas();
 gameLoop();
