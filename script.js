@@ -5,11 +5,11 @@ const botonDaño = document.getElementById("botonDaño");
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 512;
-canvas.height = 1024;
+canvas.width = 128;
+canvas.height = 192;
 
-const PLAYER_SIZE = 64;
-const PLAYER_SPEED = 5;
+const PLAYER_SIZE = 8;
+const PLAYER_SPEED = 3;
 const CANVAS_COLOR = '#1a1a2e';
 
 // Cargar spritesheets
@@ -19,6 +19,9 @@ shipsImage.src = 'Assets/SpaceShooterAssetPack_Ships.png';
 const backgroundImage = new Image();
 backgroundImage.src = 'Assets/SpaceShooterAssetPack_BackGrounds.png';
 
+const fireImage = new Image();
+fireImage.src = 'Assets/SpaceShooterAssetPack_Miscellaneous.png';
+
 // Función para extraer sprites del spritesheet
 function drawSprite(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
     if (image.complete && image.naturalWidth > 0) {
@@ -26,12 +29,19 @@ function drawSprite(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
     }
 }
 
-const SPRITES = {
-    idle: { x: 8, y: 0 },
-    right: { x: 16, y: 0 },
-    left: { x: 0, y: 0 },
-    up: { x: 8, y: 0 },
-    down: { x: 8, y: 0 }
+const shipSprites = {
+    idle: { x: 8, y: 32 },
+    right: { x: 16, y: 32 },
+    left: { x: 0, y: 32 },
+    up: { x: 8, y: 32 },
+    down: { x: 8, y: 32 }
+};
+
+const fireSprites = {
+    idle: { x: 40, y: 24 },
+    thrust: { x: 48, y: 24 },
+    left: { x: 64, y: 24 },
+    right: { x: 72, y: 24 },
 };
 
 function Player(config) {
@@ -46,7 +56,7 @@ function Player(config) {
 }
 
 Player.prototype.setSprite = function (dir) {
-    const sprite = SPRITES[dir] || SPRITES.idle;
+    const sprite = shipSprites[dir] || shipSprites.idle;
     this.spriteX = sprite.x;
     this.spriteY = sprite.y;
 };
@@ -62,6 +72,7 @@ Player.prototype.move = function (dx, dy) {
         this.setSprite("down");
     } else {
         this.setSprite("idle");
+        
     }
 
     this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + dx));
@@ -73,10 +84,12 @@ const player = new Player({
     y: 0,
     width: PLAYER_SIZE,
     height: PLAYER_SIZE,
-    spriteX: SPRITES.idle.x,
-    spriteY: SPRITES.idle.y,
+    spriteX: shipSprites.idle.x,
+    spriteY: shipSprites.idle.y,
     spriteWidth: 8,
-    spriteHeight: 8
+    spriteHeight: 8,
+    fireSpriteX: fireSprites.x,
+    fireSpriteY: fireSprites.y,
 });
 
 function positionPlayer() {
@@ -102,15 +115,21 @@ function update() {
 
     if (keys['ArrowRight']) {
         dx += PLAYER_SPEED/1.5;
+        fireSpriteType = 'right';
     }
     if (keys['ArrowLeft']) {
         dx -= PLAYER_SPEED/1.5;
+        fireSpriteType = 'left';
     }
     if (keys['ArrowUp']) {
         dy -= PLAYER_SPEED;
+        fireSpriteType = 'thrust';
+    } else {
+        fireSpriteType = 'idle';
     }
     if (keys['ArrowDown']) {
-        dy += PLAYER_SPEED;
+        dy += PLAYER_SPEED/1.5;
+        fireSpriteType = 'idle';
     }
 
     player.move(dx, dy);
@@ -150,7 +169,7 @@ function draw() {
         drawSprite(
             backgroundImage,
             0, 0,              // Posición en el spritesheet (esquina superior izquierda)
-            128, 256,          // Tamaño de la sección del fondo en el spritesheet
+            128, 192,          // Tamaño de la sección del fondo en el spritesheet
             0, 0,              // Posición en el canvas
             canvas.width, canvas.height    // Tamaño en el canvas
         );
@@ -171,6 +190,17 @@ function draw() {
         player.y,
         player.width,
         player.height
+    );
+
+    // Dibujar fuego debajo de la nave
+    drawSprite(
+        fireImage,
+        fireSprites[fireSpriteType].x,
+        fireSprites[fireSpriteType].y,
+        8, 8,
+        player.x + player.width / 2 - 4,
+        player.y + player.height,
+        8, 8
     );
 }
 
