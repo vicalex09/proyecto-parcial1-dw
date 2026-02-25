@@ -38,10 +38,10 @@ const shipSprites = {
 };
 
 const fireSprites = {
-    idle: { x: 40, y: 24 },
-    thrust: { x: 48, y: 24 },
-    left: { x: 64, y: 24 },
-    right: { x: 72, y: 24 },
+    idle: { x: 40, y: 16 },
+    thrust: { x: 40, y: 24 },
+    left: { x: 64, y: 16 },
+    right: { x: 72, y: 16 },
 };
 
 function Player(config) {
