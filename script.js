@@ -10,24 +10,22 @@ canvas.width = 128;
 canvas.height = 192;
 
 const PLAYER_SIZE = 8;
-const PLAYER_SPEED = 2.5;
+const PLAYER_SPEED = 2;
 const CANVAS_COLOR = '#1a1a2e';
 
 // === CARGAR SPRITESHEETS ===
-let imagesLoaded = 0;
-const totalImages = 3;
 
 const shipsImage = new Image();
-
 shipsImage.src = 'Assets/SpaceShooterAssetPack_Ships.png';
 
 const backgroundImage = new Image();
-
 backgroundImage.src = 'Assets/SpaceShooterAssetPack_BackGrounds.png';
 
 const fireImage = new Image();
-
 fireImage.src = 'Assets/SpaceShooterAssetPack_Miscellaneous.png';
+
+const shootImage = new Image();
+shootImage.src = 'Assets/SpaceShooterAssetPack_Projectiles.png';
 
 // === FUNCIÓN PARA DIBUJAR SPRITES ===
 function drawSprite(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
@@ -49,6 +47,7 @@ const player = new Player({
 });
 
 const fire = new Fire(player);
+const shoot = new Shoot(player);
 
 // === POSICIONAR JUGADOR ===
 function positionPlayer() {
@@ -74,7 +73,7 @@ document.addEventListener('keyup', (event) => {
 });
 
 // Actualizar posición del jugador
-function update() {
+function update(currentTime) {
     let dx = 0;
     let dy = 0;
 
@@ -94,8 +93,12 @@ function update() {
         dy += PLAYER_SPEED/1.5;
         fire.setType('back');
     }
+    if (keys ['space']) {
+        shoot.createProjectile();
+    }
 
     player.move(dx, dy);
+    shoot.update(currentTime);
 }
 
 // === DIBUJAR EN CANVAS ===
@@ -137,11 +140,14 @@ function draw() {
 
     // Dibujar fuego debajo de la nave
     fire.draw(ctx, fireImage);
+    
+    // Dibujar proyectiles
+    shoot.draw(ctx, shootImage);
 }
 
 // === LOOP DEL JUEGO ===
-function gameLoop() {
-    update();
+function gameLoop(timestamp) {
+    update(timestamp);
     draw();
     requestAnimationFrame(gameLoop);
 }
