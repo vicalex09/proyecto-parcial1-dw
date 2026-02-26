@@ -44,28 +44,27 @@ Projectile.prototype.draw = function(ctx, shootImage) {
 function Shoot(player) {
     this.player = player;
     this.projectiles = [];
-    this.shootInterval = 500; // 0.5 segundos en milisegundos
-    this.lastShootTime = 0;
+    this.canShoot = true;
+    this.shootCooldown = 200; // 200ms entre disparos
 }
 
-// Crear un nuevo proyectil
-Shoot.prototype.createProjectile = function() {
-    const x = this.player.x + this.player.width / 2 - 4; // Centrar el proyectil en el jugador
-    const y = this.player.y;
-    this.projectiles.push(new Projectile(x, y));
+// Disparar (llamado cuando se presiona espacio)
+Shoot.prototype.shoot = function() {
+    if (this.canShoot) {
+        const x = this.player.x + this.player.width / 2 - 4; // Centrar el proyectil en el jugador
+        const y = this.player.y;
+        this.projectiles.push(new Projectile(x, y));
+        
+        // Activar cooldown
+        this.canShoot = false;
+        setTimeout(() => {
+            this.canShoot = true;
+        }, this.shootCooldown);
+    }
 };
 
 // Actualizar todos los proyectiles
-Shoot.prototype.update = function(currentTime) {
-    // Disparar automáticamente cada 0.5 segundos
-    if (KeyboardEvents['space']) {
-        this.createProjectile();
-    }
-    else if (currentTime - this.lastShootTime >= this.shootInterval) {
-        this.createProjectile();
-        this.lastShootTime = currentTime;
-    }
-    
+Shoot.prototype.update = function() {
     // Actualizar posición de cada proyectil
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
         this.projectiles[i].update();
@@ -76,6 +75,7 @@ Shoot.prototype.update = function(currentTime) {
         }
     }
 };
+
 
 // Dibujar todos los proyectiles activos
 Shoot.prototype.draw = function(ctx, shootImage) {

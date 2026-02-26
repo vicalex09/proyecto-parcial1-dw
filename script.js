@@ -61,6 +61,11 @@ const keys = {};
 // Registrar teclas presionadas
 document.addEventListener('keydown', (event) => {
     keys[event.key] = true;
+    
+    // Disparar al presionar espacio
+    if (event.key === ' ') {
+        shoot.shoot();
+    }
 });
 
 document.addEventListener('keyup', (event) => {
@@ -93,12 +98,9 @@ function update(currentTime) {
         dy += PLAYER_SPEED/1.5;
         fire.setType('back');
     }
-    if (keys ['space']) {
-        shoot.createProjectile();
-    }
 
     player.move(dx, dy);
-    shoot.update(currentTime);
+    shoot.update();
 }
 
 // === DIBUJAR EN CANVAS ===
@@ -146,8 +148,8 @@ function draw() {
 }
 
 // === LOOP DEL JUEGO ===
-function gameLoop(timestamp) {
-    update(timestamp);
+function gameLoop() {
+    update();
     draw();
     requestAnimationFrame(gameLoop);
 }
