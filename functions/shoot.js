@@ -67,10 +67,33 @@ Shoot.prototype.shoot = function() {
 Shoot.prototype.update = function() {
     // Actualizar posición de cada proyectil
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
-        this.projectiles[i].update();
-        
+        const proj = this.projectiles[i];
+        proj.update();
+
+        // comprobar colisión con enemigos si el sistema está presente
+        if (proj.active && window.enemiesSystem) {
+            const enemies = enemiesSystem.list;
+            for (let j = enemies.length - 1; j >= 0; j--) {
+                const enemy = enemies[j];
+                if (enemy.active &&
+                    proj.x < enemy.x + enemy.width &&
+                    proj.x + proj.width > enemy.x &&
+                    proj.y < enemy.y + enemy.height &&
+                    proj.y + proj.height > enemy.y) {
+                    // impacto
+                    proj.active = false;
+                    enemy.active = false;
+                    // sumar puntos por eliminar enemigo
+                    if (window.score && typeof window.score.add === 'function') {
+                        window.score.add(10);
+                    }
+                    break; // un proyectil solo puede chocar con un enemigo
+                }
+            }
+        }
+
         // Eliminar proyectiles inactivos
-        if (!this.projectiles[i].active) {
+        if (!proj.active) {
             this.projectiles.splice(i, 1);
         }
     }

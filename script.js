@@ -79,6 +79,9 @@ document.addEventListener('keyup', (event) => {
 
 // Actualizar posición del jugador
 function update(currentTime) {
+    if (typeof currentTime === 'undefined') {
+        currentTime = performance.now();
+    }
     let dx = 0;
     let dy = 0;
 
@@ -101,6 +104,12 @@ function update(currentTime) {
 
     player.move(dx, dy);
     shoot.update();
+
+    // ---- enemigos ----
+    if (window.enemiesSystem) {
+        enemiesSystem.spawn(currentTime);
+        enemiesSystem.update();
+    }
 }
 
 // === DIBUJAR EN CANVAS ===
@@ -145,11 +154,21 @@ function draw() {
     
     // Dibujar proyectiles
     shoot.draw(ctx, shootImage);
+
+    // Dibujar enemigos
+    if (window.enemiesSystem) {
+        enemiesSystem.draw(ctx, shipsImage);
+    }
+
+    // Dibujar puntuación
+    if (window.score && typeof window.score.draw === 'function') {
+        window.score.draw(ctx);
+    }
 }
 
 // === LOOP DEL JUEGO ===
-function gameLoop() {
-    update();
+function gameLoop(timestamp) {
+    update(timestamp);
     draw();
     requestAnimationFrame(gameLoop);
 }
