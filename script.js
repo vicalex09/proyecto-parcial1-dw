@@ -1,7 +1,8 @@
-// === VARIABLES GLOBALES ===
-let vidasCount = 3; // Contador de vidas
-const vidasDisplay = document.getElementById("vidas");
-const botonDaño = document.getElementById("botonDaño");
+// === MAIN.JS - Archivo principal del juego ===
+// Coordina la inicialización y ejecución del juego
+// Requiere: player.js, fire.js, vidas.js
+
+// === CONFIGURACIÓN DEL CANVAS ===
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,76 +10,33 @@ canvas.width = 128;
 canvas.height = 192;
 
 const PLAYER_SIZE = 8;
-const PLAYER_SPEED = 3;
+const PLAYER_SPEED = 2.5;
 const CANVAS_COLOR = '#1a1a2e';
 
-// Cargar spritesheets
+// === CARGAR SPRITESHEETS ===
+let imagesLoaded = 0;
+const totalImages = 3;
+
 const shipsImage = new Image();
+
 shipsImage.src = 'Assets/SpaceShooterAssetPack_Ships.png';
 
 const backgroundImage = new Image();
+
 backgroundImage.src = 'Assets/SpaceShooterAssetPack_BackGrounds.png';
 
 const fireImage = new Image();
+
 fireImage.src = 'Assets/SpaceShooterAssetPack_Miscellaneous.png';
 
-// Función para extraer sprites del spritesheet
+// === FUNCIÓN PARA DIBUJAR SPRITES ===
 function drawSprite(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
     if (image.complete && image.naturalWidth > 0) {
         ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 }
 
-const shipSprites = {
-    idle: { x: 8, y: 32 },
-    right: { x: 16, y: 32 },
-    left: { x: 0, y: 32 },
-    up: { x: 8, y: 32 },
-    down: { x: 8, y: 32 }
-};
-
-const fireSprites = {
-    idle: { x: 40, y: 16 },
-    thrust: { x: 40, y: 24 },
-    left: { x: 64, y: 16 },
-    right: { x: 72, y: 16 },
-};
-
-function Player(config) {
-    this.x = config.x;
-    this.y = config.y;
-    this.width = config.width;
-    this.height = config.height;
-    this.spriteX = config.spriteX;
-    this.spriteY = config.spriteY;
-    this.spriteWidth = config.spriteWidth;
-    this.spriteHeight = config.spriteHeight;
-}
-
-Player.prototype.setSprite = function (dir) {
-    const sprite = shipSprites[dir] || shipSprites.idle;
-    this.spriteX = sprite.x;
-    this.spriteY = sprite.y;
-};
-
-Player.prototype.move = function (dx, dy) {
-    if (dx < 0) {
-        this.setSprite("left");
-    } else if (dx > 0) {
-        this.setSprite("right");
-    } else if (dy < 0) {
-        this.setSprite("up");
-    } else if (dy > 0) {
-        this.setSprite("down");
-    } else {
-        this.setSprite("idle");
-        
-    }
-
-    this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + dx));
-    this.y = Math.max(0, Math.min(canvas.height - this.height, this.y + dy));
-};
-
+// === CREAR INSTANCIAS ===
 const player = new Player({
     x: 0,
     y: 0,
@@ -88,24 +46,31 @@ const player = new Player({
     spriteY: shipSprites.idle.y,
     spriteWidth: 8,
     spriteHeight: 8,
-    fireSpriteX: fireSprites.x,
-    fireSpriteY: fireSprites.y,
 });
 
+const fire = new Fire(player);
+
+// === POSICIONAR JUGADOR ===
 function positionPlayer() {
     player.x = (canvas.width - player.width) / 2;
     player.y = canvas.height - player.height - 20;
 }
 
+// === CONTROL DE TECLADO ===
 const keys = {};
 
-// Registrar teclas presionadas (una sola vez)
+// Registrar teclas presionadas
 document.addEventListener('keydown', (event) => {
     keys[event.key] = true;
 });
 
 document.addEventListener('keyup', (event) => {
     keys[event.key] = false;
+    // Cambiar sprite y fuego a idle si no hay teclas presionadas
+    if (!keys['ArrowRight'] && !keys['ArrowLeft'] && !keys['ArrowUp'] && !keys['ArrowDown']) {
+        player.setSprite('idle');
+        fire.setType('idle');
+    }
 });
 
 // Actualizar posición del jugador
@@ -115,53 +80,25 @@ function update() {
 
     if (keys['ArrowRight']) {
         dx += PLAYER_SPEED/1.5;
-        fireSpriteType = 'right';
+        fire.setType('right');
     }
     if (keys['ArrowLeft']) {
         dx -= PLAYER_SPEED/1.5;
-        fireSpriteType = 'left';
+        fire.setType('left');
     }
     if (keys['ArrowUp']) {
         dy -= PLAYER_SPEED;
-        fireSpriteType = 'thrust';
-    } else {
-        fireSpriteType = 'idle';
+        fire.setType('thrust');
     }
     if (keys['ArrowDown']) {
         dy += PLAYER_SPEED/1.5;
-        fireSpriteType = 'idle';
+        fire.setType('back');
     }
 
     player.move(dx, dy);
 }
-// === SISTEMA DE VIDAS ===
-function setupVidas() {
-    vidasDisplay.innerText = vidasCount;
 
-    if (!botonDaño) {
-        return;
-    }
-
-    botonDaño.addEventListener("click", () => {
-        if (vidasCount > 0) {
-            vidasCount--;
-            vidasDisplay.innerText = vidasCount;
-
-            if (vidasCount === 0) {
-                alert("Game Over - Has perdido todas tus vidas");
-                resetGame();
-            }
-        }
-    });
-}
-
-function resetGame() {
-    vidasCount = 3;
-    vidasDisplay.innerText = vidasCount;
-    positionPlayer();
-}   
-
-// Dibujar en canvas
+// === DIBUJAR EN CANVAS ===
 function draw() {
     // Dibujar fondo - solo la primera sección (izquierda superior)
     if (backgroundImage.complete) {
@@ -179,29 +116,27 @@ function draw() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     
-    // Dibujar jugador con sprite
-    drawSprite(
-        shipsImage,
-        player.spriteX,
-        player.spriteY,
-        player.spriteWidth,
-        player.spriteHeight,
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
+    // Dibujar jugador solo si la imagen está cargada
+    if (shipsImage.complete && shipsImage.naturalWidth > 0) {
+        drawSprite(
+            shipsImage,
+            player.spriteX,
+            player.spriteY,
+            player.spriteWidth,
+            player.spriteHeight,
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+    } else {
+        // Debug: Si la imagen no está cargada, dibujar un cuadrado de reemplazo
+        ctx.fillStyle = 'red';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 
     // Dibujar fuego debajo de la nave
-    drawSprite(
-        fireImage,
-        fireSprites[fireSpriteType].x,
-        fireSprites[fireSpriteType].y,
-        8, 8,
-        player.x + player.width / 2 - 4,
-        player.y + player.height,
-        8, 8
-    );
+    fire.draw(ctx, fireImage);
 }
 
 // === LOOP DEL JUEGO ===
