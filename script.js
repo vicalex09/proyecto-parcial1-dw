@@ -108,7 +108,7 @@ function update(currentTime) {
     // ---- enemigos ----
     if (window.enemiesSystem) {
         enemiesSystem.spawn(currentTime);
-        enemiesSystem.update();
+        enemiesSystem.update(currentTime);
     }
 }
 

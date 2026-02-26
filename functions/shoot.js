@@ -82,11 +82,24 @@ Shoot.prototype.update = function() {
                     proj.y + proj.height > enemy.y) {
                     // impacto
                     proj.active = false;
-                    enemy.active = false;
-                    // sumar puntos por eliminar enemigo
-                    if (window.score && typeof window.score.add === 'function') {
-                        window.score.add(10);
+                    // si es especial, resta vida y comprueba eliminación
+                    if (enemy.isSpecial) {
+                        enemy.hp--;
+                        if (enemy.hp <= 0) {
+                            enemy.active = false;
+                            // bonificación de puntos y multiplicador
+                            if (window.score) {
+                                window.score.add(100);
+                                window.score.value *= 2;
+                            }
+                        }
+                    } else {
+                        enemy.active = false;
+                        if (window.score && typeof window.score.add === 'function') {
+                            window.score.add(10);
+                        }
                     }
+                    // si el enemigo aún vive (especial con hp>0) no romper para que el mismo proyectil no atraviese
                     break; // un proyectil solo puede chocar con un enemigo
                 }
             }
