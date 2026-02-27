@@ -15,12 +15,28 @@
             <button id="botonDaño">Recibir Daño</button>
         </div>
     </div>
+    
+    <!-- Modal de Pausa -->
+    <div id="pauseModal" class="pauseModal">
+        <div class="pauseContent">
+            <h1>PAUSA</h1>
+            <p>El juego está pausado</p>
+            <div class="pauseButtons">
+                <button id="resumeBtn" class="pauseButton resumeButton">Continuar (ESC)</button>
+                <button id="restartBtn" class="pauseButton restartButton">Reiniciar Juego</button>
+            </div>
+            <div class="pauseHint">
+                <p>Presiona <strong>ESC</strong> para pausar/reanudar</p>
+            </div>
+        </div>
+    </div>
     <script src="./functions/player.js"></script>
     <script src="./functions/fire.js"></script>
     <script src="./functions/vidas.js"></script>
     <script src="./functions/shoot.js"></script>
     <script src="./functions/enemigos.js"></script>
     <script src="./functions/score.js"></script>
+    <script src="./functions/pause.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

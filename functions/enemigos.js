@@ -61,8 +61,13 @@ const enemiesSystem = {
     spawn: function (currentTime) {
         if (currentTime - this.lastSpawn < this.spawnInterval) return;
         this.lastSpawn = currentTime;
+        
+        // contar enemigos especiales activos
+        const specialEnemies = this.list.filter(e => e.isSpecial && e.active);
+        
         // decidir si generamos un enemigo especial (10% de probabilidad)
-        if (Math.random() < 0.1) {
+        // solo si no hay un enemigo especial activo
+        if (Math.random() < 0.1 && specialEnemies.length === 0) {
             const x = Math.random() * (canvas.width - 32);
             const special = new Enemy(x, 0); // colocar fija en la parte superior
             special.isSpecial = true;

@@ -46,3 +46,144 @@ canvas {
 #botonDaño:hover {
     background-color: #ff6666;
 }
+
+/* Estilos para el Modal de Pausa - Pixel Art Style */
+.pauseModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.pauseContent {
+    background-color: #1a1a2e;
+    border: 4px solid #00d4ff;
+    border-radius: 0;
+    padding: 30px;
+    text-align: center;
+    text-rendering: pixelated;
+    text-rendering: crisp-edges;
+    max-width: 400px;
+    box-shadow: 
+        4px 4px 0px #00d4ff,
+        8px 8px 0px rgba(0, 212, 255, 0.3),
+        -2px -2px 0px #00d4ff inset,
+        2px 2px 0px rgba(0, 0, 0, 0.5) inset;
+    animation: pausePixelBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-family: 'Courier New', monospace;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+@keyframes pausePixelBounce {
+    0% {
+        transform: translate(0px, -40px);
+        opacity: 0;
+    }
+    70% {
+        transform: translate(2px, 2px);
+    }
+    100% {
+        transform: translate(0px, 0px);
+        opacity: 1;
+    }
+}
+
+.pauseContent h1 {
+    font-size: 42px;
+    font-style: 12px arial;
+    margin: 0 0 15px 0;
+    color: #00d4ff;
+    text-shadow: 
+        3px 3px 0px #004466,
+        6px 6px 0px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.pauseContent p {
+    font-size: 16px;
+    color: #fff;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.pauseButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.pauseButton {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 3px solid #00d4ff;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.1s;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.pauseButton:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+}
+
+.resumeButton {
+    background-color: #00d4ff;
+    color: #1a1a2e;
+}
+
+.resumeButton:hover {
+    background-color: #00ffff;
+    box-shadow: 
+        0 0 8px #00d4ff,
+        3px 3px 0px rgba(0, 212, 255, 0.5);
+    transform: translate(-2px, -2px);
+}
+
+.restartButton {
+    background-color: #1a1a2e;
+    color: #00d4ff;
+    border: 3px dashed #00d4ff;
+}
+
+.restartButton:hover {
+    background-color: #003344;
+    color: #00ffff;
+    box-shadow: 
+        0 0 8px #00d4ff,
+        3px 3px 0px rgba(0, 212, 255, 0.5),
+        inset 0 0 8px rgba(0, 212, 255, 0.2);
+    transform: translate(-2px, -2px);
+}
+
+.pauseHint {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #00d4ff;
+    color: #00d4ff;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+.pauseHint p {
+    margin: 0;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}

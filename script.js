@@ -79,6 +79,11 @@ document.addEventListener('keyup', (event) => {
 
 // Actualizar posición del jugador
 function update(currentTime) {
+    // No actualizar si el juego está pausado
+    if (window.pauseSystem && window.pauseSystem.isPaused) {
+        return;
+    }
+    
     if (typeof currentTime === 'undefined') {
         currentTime = performance.now();
     }
@@ -164,6 +169,12 @@ function draw() {
     if (window.score && typeof window.score.draw === 'function') {
         window.score.draw(ctx);
     }
+    
+    // Si el juego está pausado, dibujar una superposición oscura
+    if (window.pauseSystem && window.pauseSystem.isPaused) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 // === LOOP DEL JUEGO ===
@@ -176,4 +187,7 @@ function gameLoop(timestamp) {
 // === INICIALIZACIÓN ===
 positionPlayer();
 setupVidas();
+if (window.pauseSystem) {
+    window.pauseSystem.init();
+}
 gameLoop();

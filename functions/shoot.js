@@ -10,7 +10,7 @@ function Projectile(x, y) {
     this.y = y;
     this.width = 8;
     this.height = 8;
-    this.speed = 2;
+    this.speed = 3;
     this.active = true;
 }
 
