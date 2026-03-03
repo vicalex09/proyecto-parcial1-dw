@@ -61,17 +61,95 @@ const enemiesSystem = {
     spawn: function (currentTime) {
         if (currentTime - this.lastSpawn < this.spawnInterval) return;
         this.lastSpawn = currentTime;
-        
-        // contar enemigos especiales activos
-        const specialEnemies = this.list.filter(e => e.isSpecial && e.active);
-        
         // decidir si generamos un enemigo especial (10% de probabilidad)
-        // solo si no hay un enemigo especial activo
-        if (Math.random() < 0.1 && specialEnemies.length === 0) {
+        if (Math.random() < 0.1) {
             const x = Math.random() * (canvas.width - 32);
             const special = new Enemy(x, 0); // colocar fija en la parte superior
             special.isSpecial = true;
-            special.width = 32;
+            special.width = 32;let invaders = [];
+let invDir = 1; // 1=right, -1=left
+let invSpeed = 1.2;
+let invDropY = 0;
+let invMoveTimer = 0;
+const INV_MOVE_INTERVAL = 28; // frames between moves
+let invMoveStep = 8;
+let invaderShootTimer = 0;
+
+const INV_SHAPES = [
+  // type 0 — squid
+  (x, y, c) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x-12, y-6, 24, 12);
+    ctx.fillRect(x-8, y-12, 16, 8);
+    ctx.fillRect(x-16, y+2, 6, 6);
+    ctx.fillRect(x+10, y+2, 6, 6);
+    ctx.clearRect(x-6, y-4, 4, 4);
+    ctx.clearRect(x+2, y-4, 4, 4);
+  },
+  // type 1 — crab
+  (x, y, c) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x-14, y-4, 28, 10);
+    ctx.fillRect(x-10, y-10, 20, 8);
+    ctx.fillRect(x-18, y-2, 6, 4);
+    ctx.fillRect(x+12, y-2, 6, 4);
+    ctx.fillRect(x-18, y+6, 4, 6);
+    ctx.fillRect(x+14, y+6, 4, 6);
+    ctx.clearRect(x-8, y-6, 4, 4);
+    ctx.clearRect(x+4, y-6, 4, 4);
+  },
+  // type 2 — octopus
+  (x, y, c) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x-10, y-12, 20, 20);
+    ctx.fillRect(x-14, y-6, 28, 12);
+    ctx.fillRect(x-16, y+6, 4, 6);
+    ctx.fillRect(x-8, y+6, 4, 6);
+    ctx.fillRect(x+4, y+6, 4, 6);
+    ctx.fillRect(x+12, y+6, 4, 6);
+    ctx.clearRect(x-6, y-8, 4, 4);
+    ctx.clearRect(x+2, y-8, 4, 4);
+  },
+];
+
+const INV_COLORS = ['#ff2244', '#ff8800', '#ffe000', '#39ff14', '#00f5ff'];
+
+function buildInvaders() {
+  invaders = [];
+  const cols = 11, rows = 5;
+  const startX = 60, startY = 60 + (level - 1) * 8;
+  const spacingX = 52, spacingY = 46;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const type = r < 1 ? 2 : r < 3 ? 1 : 0;
+      const color = INV_COLORS[r % INV_COLORS.length];
+      invaders.push({
+        x: startX + c * spacingX,
+        y: startY + r * spacingY,
+        type,
+        color,
+        alive: true,
+        w: 30, h: 24,
+        frame: 0,
+      });
+    }
+  }
+
+  invDir = 1;
+  invSpeed = 1.0 + (level - 1) * 0.3;
+  invMoveTimer = 0;
+  eBullets = [];
+}
+
+// ── UFO
+let ufo = null;
+let ufoTimer = 0;
+const UFO_INTERVAL = 600;
+
+function spawnUfo() {
+  ufo = { x: -30, y: 36, speed: 2.5, alive: true };
+}
             special.height = 32;
             special.hp = 3;
             special.speed = 0.5 + Math.random() * 0.5;
@@ -170,7 +248,14 @@ const enemiesSystem = {
         }
     },
     // lista de proyectiles disparados por enemigos especiales
-    enemyProjectiles: []
+    enemyProjectiles: [],
+
+    // Reiniciar los enemigos y sus proyectiles
+    reset: function() {
+        this.list = [];
+        this.enemyProjectiles = [];
+        this.lastSpawn = 0;
+    }
 };
 
 // Exponer para que script.js pueda invocarlo si no se hace con import/module

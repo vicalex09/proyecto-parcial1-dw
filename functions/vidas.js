@@ -43,5 +43,16 @@ window.hitPlayer = hitPlayer;
 function resetGame() {
     vidasCount = 3;
     vidasDisplay.innerText = vidasCount;
+    
+    // Reiniciar enemigos
+    if (window.enemiesSystem && typeof window.enemiesSystem.reset === 'function') {
+        window.enemiesSystem.reset();
+    }
+    
+    // Reiniciar puntuación
+    if (window.score && typeof window.score.reset === 'function') {
+        window.score.reset();
+    }
+    
     positionPlayer();
 }
