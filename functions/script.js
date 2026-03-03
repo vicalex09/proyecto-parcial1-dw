@@ -9,6 +9,10 @@ const gameOverOverlay = document.getElementById('gameOverOverlay');
 const gameOverBackgroundCanvas = document.getElementById('gameOverBackground');
 const gameOverBackgroundCtx = gameOverBackgroundCanvas.getContext('2d');
 const retryButton = document.getElementById('retryButton');
+const pauseOverlay = document.getElementById('pauseOverlay');
+const pauseBackgroundCanvas = document.getElementById('pauseBackground');
+const pauseBackgroundCtx = pauseBackgroundCanvas.getContext('2d');
+const continueButton = document.getElementById('continueButton');
 
 canvas.width = 128;
 canvas.height = 192;
@@ -17,6 +21,7 @@ const PLAYER_SIZE = 8;
 const PLAYER_SPEED = 2;
 const CANVAS_COLOR = '#1a1a2e';
 let isGameOver = false;
+let isPause = false;
 
 // === CARGAR SPRITESHEETS ===
 const assetBasePath = window.location.pathname.includes('/Screens/') ? '../Assets/' : 'Assets/';
@@ -62,6 +67,28 @@ function drawSprite(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight, tar
         targetCtx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 }
+function drawPauseBackground() {
+    if (!pauseBackgroundCanvas) return;
+
+    pauseBackgroundCanvas.width = canvas.width;
+    pauseBackgroundCanvas.height = canvas.height;
+    pauseBackgroundCtx.imageSmoothingEnabled = false;
+
+    if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
+        drawSprite(
+            backgroundImage,
+            0, 0,
+            128, 192,
+            0, 0,
+            pauseBackgroundCanvas.width,
+            pauseBackgroundCanvas.height,
+            pauseBackgroundCtx
+        );
+    } else {
+        pauseBackgroundCtx.fillStyle = CANVAS_COLOR;
+        pauseBackgroundCtx.fillRect(0, 0, pauseBackgroundCanvas.width, pauseBackgroundCanvas.height);
+    }
+}
 
 function drawGameOverBackground() {
     if (!gameOverBackgroundCanvas) return;
@@ -84,6 +111,30 @@ function drawGameOverBackground() {
         gameOverBackgroundCtx.fillStyle = CANVAS_COLOR;
         gameOverBackgroundCtx.fillRect(0, 0, gameOverBackgroundCanvas.width, gameOverBackgroundCanvas.height);
     }
+}
+function pause() {
+    if (isPause || isGameOver) return;
+
+    isPause = true
+    Object.keys(keys).forEach((key) => {
+        keys[key] = false;
+    });
+
+    drawPauseBackground();
+    pauseOverlay.classList.add('is-visible');
+    pauseOverlay.setAttribute('aria-hidden', 'false');
+}
+
+function resumeGame() {
+    if (!isPause || isGameOver) return;
+
+    isPause = false;
+    Object.keys(keys).forEach((key) => {
+        keys[key] = false;
+    });
+
+    pauseOverlay.classList.remove('is-visible');
+    pauseOverlay.setAttribute('aria-hidden', 'true');
 }
 
 function showGameOver() {
@@ -123,10 +174,14 @@ function restartGame() {
     positionPlayer();
 
     isGameOver = false;
+    isPause = false
     gameOverOverlay.classList.remove('is-visible');
     gameOverOverlay.setAttribute('aria-hidden', 'true');
+    pauseOverlay.classList.remove('is-visible')
+    pauseOverlay.setAttribute('aria-hidden', 'true');
 }
-
+window.pause = pause;
+window.resumeGame = resumeGame;
 window.showGameOver = showGameOver;
 
 // === CREAR INSTANCIAS ===
@@ -157,6 +212,22 @@ const keys = {};
 document.addEventListener('keydown', (event) => {
     if (isGameOver) return;
 
+    if (event.key === 'Escape') {
+        event.preventDefault();
+
+        if (event.repeat) return;
+
+        if (isPause) {
+            resumeGame();
+        } else {
+            pause();
+        }
+
+        return;
+    }
+
+    if (isPause) return;
+
     keys[event.key] = true;
     
     // Disparar al presionar espacio
@@ -167,6 +238,11 @@ document.addEventListener('keydown', (event) => {
 
 document.addEventListener('keyup', (event) => {
     if (isGameOver) return;
+
+    if (isPause) {
+        keys[event.key] = false;
+        return;
+    }
 
     keys[event.key] = false;
     // Cambiar sprite y fuego a idle si no hay teclas presionadas
@@ -272,7 +348,7 @@ function draw() {
 
 // === LOOP DEL JUEGO ===
 function gameLoop(timestamp) {
-    if (!isGameOver) {
+    if (!isGameOver && !isPause) {
         update(timestamp);
     }
     draw();
@@ -281,6 +357,7 @@ function gameLoop(timestamp) {
 
 // === INICIALIZACIÓN ===
 retryButton.addEventListener('click', restartGame);
+continueButton.addEventListener('click', resumeGame);
 positionPlayer();
 setupVidas();
 gameLoop();

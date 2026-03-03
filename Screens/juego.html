@@ -9,6 +9,19 @@
 <body class="game-page">
     <div id="gameContainer">
         <canvas id="gameCanvas" width="128" height="192"></canvas>
+
+        <div id="pauseOverlay" class="pause-overlay" aria-hidden="true">
+            <canvas id="pauseBackground" class="pause-bg"></canvas>
+            <div class="pause-backdrop"></div>
+            <div class="pause-card">
+                <h1>PAUSA</h1>
+                <div class="pause-actions">
+                    <button id="continueButton" type="button" class="pause-btn pause-btn-continue">Continuar</button>
+                    <a class="pause-btn pause-btn-menu" href="../index.html">Menú principal</a>
+                </div>
+            </div>
+        </div>
+
         <div id="gameOverOverlay" class="game-over-overlay" aria-hidden="true">
             <canvas id="gameOverBackground" class="game-over-bg"></canvas>
             <div class="game-over-backdrop"></div>
