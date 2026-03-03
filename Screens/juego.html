@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Juego JS</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="game-page">
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="128" height="192"></canvas>
+        <div id="gameOverOverlay" class="game-over-overlay" aria-hidden="true">
+            <canvas id="gameOverBackground" class="game-over-bg"></canvas>
+            <div class="game-over-backdrop"></div>
+            <div class="game-over-card">
+                <h1>GAME OVER</h1>
+                <p>Has perdido todas tus vidas</p>
+                <div class="game-over-actions">
+                    <button id="retryButton" type="button" class="game-over-btn game-over-btn-retry">Reintentar</button>
+                    <a class="game-over-btn game-over-btn-menu" href="../index.html">Menú principal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../functions/player.js"></script>
+    <script src="../functions/fire.js"></script>
+    <script src="../functions/vidas.js"></script>
+    <script src="../functions/shoot.js"></script>
+    <script src="../functions/enemigos.js"></script>
+    <script src="../functions/script.js"></script>
+</body>
+</html>

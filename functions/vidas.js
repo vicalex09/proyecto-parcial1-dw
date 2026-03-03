@@ -1,27 +1,10 @@
 // vidas.js
 
 let vidasCount = 3;
-const vidasDisplay = document.getElementById("vidas");
-const botonDaño = document.getElementById("botonDaño");
 
 function setupVidas() {
-    vidasDisplay.innerText = vidasCount;
-
-    if (!botonDaño) {
-        return;
-    }
-
-    botonDaño.addEventListener("click", () => {
-        if (vidasCount > 0) {
-            vidasCount--;
-            vidasDisplay.innerText = vidasCount;
-
-            if (vidasCount === 0) {
-                alert("Game Over - Has perdido todas tus vidas");
-                resetGame();
-            }
-        }
-    });
+    // Inicializar vidas al valor por defecto
+    vidasCount = 3;
 }
 
 // Reduce una vida cuando el jugador es golpeado por un enemigo.
@@ -29,30 +12,22 @@ function setupVidas() {
 function hitPlayer() {
     if (vidasCount > 0) {
         vidasCount--;
-        vidasDisplay.innerText = vidasCount;
         if (vidasCount === 0) {
-            alert("Game Over - Has perdido todas tus vidas");
-            resetGame();
+            if (window.showGameOver && typeof window.showGameOver === 'function') {
+                window.showGameOver();
+            }
         }
     }
 }
 
-// Exportar la función globalmente por simplicidad
-window.hitPlayer = hitPlayer;
-
-function resetGame() {
-    vidasCount = 3;
-    vidasDisplay.innerText = vidasCount;
-    
-    // Reiniciar enemigos
-    if (window.enemiesSystem && typeof window.enemiesSystem.reset === 'function') {
-        window.enemiesSystem.reset();
-    }
-    
-    // Reiniciar puntuación
-    if (window.score && typeof window.score.reset === 'function') {
-        window.score.reset();
-    }
-    
-    positionPlayer();
+// Dibuja las vidas en el canvas
+function drawVidas(ctx) {
+    ctx.fillStyle = '#ff0000';
+    ctx.font = '6px "Press Start 2P", Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('VIDAS: ' + vidasCount, 5, 22);
 }
+
+// Exportar funciones globalmente
+window.hitPlayer = hitPlayer;
+window.drawVidas = drawVidas;

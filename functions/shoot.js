@@ -119,3 +119,8 @@ Shoot.prototype.draw = function(ctx, shootImage) {
         this.projectiles[i].draw(ctx, shootImage);
     }
 };
+
+Shoot.prototype.reset = function() {
+    this.projectiles = [];
+    this.canShoot = true;
+};

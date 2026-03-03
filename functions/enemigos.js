@@ -1,22 +1,25 @@
 // enemigos.js - Sistema de enemigos
 
-// Cada enemigo se representa como un rectángulo que baja desde la parte superior.
+// Coordenadas de sprites en el spritesheet de naves
+// Ajustadas para alinearse correctamente con SpaceShooterAssetPack_Ships.png
 const enemySprites = {
-    // coordenadas dentro del spritesheet de naves (puede ajustarse según el assetpack)
-    basic: { x: 0, y: 0 },
+    // Enemigo básico (pequeño)
+    basic: { x: 64, y: 0, width: 8, height: 8 },
+    // Enemigo especial (más grande)
+    special: { x: 32, y: 64, width: 16, height: 16 }
 };
 
 function Enemy(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 16;   // nuevo ancho
-    this.height = 16;  // nueva altura
-    this.speed = 1 + Math.random() * 1; // velocidad variable entre 1 y 3
-    this.hp = 1;               // puntos de vida, puede aumentarse para especiales
+    this.width = 8;    // ancho visual - enemigo básico
+    this.height = 8;   // alto visual - enemigo básico
+    this.speed = 1 + Math.random() * 1; // velocidad variable
+    this.hp = 1;               // puntos de vida
     this.isSpecial = false;    // marca de enemigo especial
     this.lastShot = 0;         // usado solo por enemigos especiales
     this.shotInterval = 2000;  // tiempo entre disparos especiales
-    this.direction = 1;        // 1=derecha, -1=izquierda; usado para especiales
+    this.direction = 1;        // 1=derecha, -1=izquierda
     this.active = true;
 }
 
@@ -30,26 +33,23 @@ Enemy.prototype.update = function () {
 
 Enemy.prototype.draw = function (ctx, shipsImage) {
     if (!this.active) return;
-    const sprite = enemySprites.basic;
-    // origen fijo de 8x8 en el spritesheet, destino escalado al tamaño actual
-    const srcSize = 8;
+    
+    // Seleccionar sprite según si es especial o no
+    const spriteData = this.isSpecial ? enemySprites.special : enemySprites.basic;
+    
+    // Dibujar el sprite del enemigo
     drawSprite(
         shipsImage,
-        sprite.x,
-        sprite.y,
-        srcSize,
-        srcSize,
+        spriteData.x,
+        spriteData.y,
+        spriteData.width,
+        spriteData.height,
         this.x,
         this.y,
         this.width,
         this.height
     );
-    // borde amarillo para el enemigo especial
-    if (this.isSpecial) {
-        ctx.strokeStyle = 'yellow';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-    }
+    
 };
 
 // Sistema global de enemigos
@@ -63,102 +63,19 @@ const enemiesSystem = {
         this.lastSpawn = currentTime;
         // decidir si generamos un enemigo especial (10% de probabilidad)
         if (Math.random() < 0.1) {
-            const x = Math.random() * (canvas.width - 32);
+            const x = Math.random() * (canvas.width - 16);
             const special = new Enemy(x, 0); // colocar fija en la parte superior
             special.isSpecial = true;
-            special.width = 32;let invaders = [];
-let invDir = 1; // 1=right, -1=left
-let invSpeed = 1.2;
-let invDropY = 0;
-let invMoveTimer = 0;
-const INV_MOVE_INTERVAL = 28; // frames between moves
-let invMoveStep = 8;
-let invaderShootTimer = 0;
-
-const INV_SHAPES = [
-  // type 0 — squid
-  (x, y, c) => {
-    ctx.fillStyle = c;
-    ctx.fillRect(x-12, y-6, 24, 12);
-    ctx.fillRect(x-8, y-12, 16, 8);
-    ctx.fillRect(x-16, y+2, 6, 6);
-    ctx.fillRect(x+10, y+2, 6, 6);
-    ctx.clearRect(x-6, y-4, 4, 4);
-    ctx.clearRect(x+2, y-4, 4, 4);
-  },
-  // type 1 — crab
-  (x, y, c) => {
-    ctx.fillStyle = c;
-    ctx.fillRect(x-14, y-4, 28, 10);
-    ctx.fillRect(x-10, y-10, 20, 8);
-    ctx.fillRect(x-18, y-2, 6, 4);
-    ctx.fillRect(x+12, y-2, 6, 4);
-    ctx.fillRect(x-18, y+6, 4, 6);
-    ctx.fillRect(x+14, y+6, 4, 6);
-    ctx.clearRect(x-8, y-6, 4, 4);
-    ctx.clearRect(x+4, y-6, 4, 4);
-  },
-  // type 2 — octopus
-  (x, y, c) => {
-    ctx.fillStyle = c;
-    ctx.fillRect(x-10, y-12, 20, 20);
-    ctx.fillRect(x-14, y-6, 28, 12);
-    ctx.fillRect(x-16, y+6, 4, 6);
-    ctx.fillRect(x-8, y+6, 4, 6);
-    ctx.fillRect(x+4, y+6, 4, 6);
-    ctx.fillRect(x+12, y+6, 4, 6);
-    ctx.clearRect(x-6, y-8, 4, 4);
-    ctx.clearRect(x+2, y-8, 4, 4);
-  },
-];
-
-const INV_COLORS = ['#ff2244', '#ff8800', '#ffe000', '#39ff14', '#00f5ff'];
-
-function buildInvaders() {
-  invaders = [];
-  const cols = 11, rows = 5;
-  const startX = 60, startY = 60 + (level - 1) * 8;
-  const spacingX = 52, spacingY = 46;
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const type = r < 1 ? 2 : r < 3 ? 1 : 0;
-      const color = INV_COLORS[r % INV_COLORS.length];
-      invaders.push({
-        x: startX + c * spacingX,
-        y: startY + r * spacingY,
-        type,
-        color,
-        alive: true,
-        w: 30, h: 24,
-        frame: 0,
-      });
-    }
-  }
-
-  invDir = 1;
-  invSpeed = 1.0 + (level - 1) * 0.3;
-  invMoveTimer = 0;
-  eBullets = [];
-}
-
-// ── UFO
-let ufo = null;
-let ufoTimer = 0;
-const UFO_INTERVAL = 600;
-
-function spawnUfo() {
-  ufo = { x: -30, y: 36, speed: 2.5, alive: true };
-}
-            special.height = 32;
-            special.hp = 3;
+            special.width = 16;
+            special.height = 16;
+            special.hp = 5;
             special.speed = 0.5 + Math.random() * 0.5;
             // la dirección inicial puede ser aleatoria
             special.direction = Math.random() < 0.5 ? 1 : -1;
             this.list.push(special);
         } else {
-            const x = Math.random() * (canvas.width - 16);
-            this.list.push(new Enemy(x, -16));
+            const x = Math.random() * (canvas.width - 8);
+            this.list.push(new Enemy(x, -8));
         }
     },
 
